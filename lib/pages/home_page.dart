@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:nex_vote/consts/conts.dart';
 import 'package:nex_vote/widgets/proposal_created.dart';
@@ -16,62 +15,82 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
-    Size size = MediaQuery.of(context).size;
-    return Container(
-      child: SingleChildScrollView(
-        child: Column(
-          children: [
-            Container(
-              height: size.height * 0.5,
-              width: size.width,
-              margin: EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: ThemeColors().selectedIconBox,
-                // border: Border.all(
-                //   color: Colors.grey,
-                //   width: 5.0
-                // ),
-                borderRadius: BorderRadius.circular(15),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Determine if the screen width is less than 790 pixels
+        bool isSmallScreen = constraints.maxWidth < 790;
+
+        return SingleChildScrollView(
+          child: Column(
+            children: [
+              Container(
+                height: constraints.maxHeight * 0.4, // Adjust height proportionally
+                width: double.infinity, // Ensure it takes full width
+                margin: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: ThemeColorsHome.selectedIconBox,
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                child: UserInfo(),
               ),
-              child: UserInfo(),
-            ),
-            Row(
-              children: [
-                Expanded(
-                  child: Container(
-                    height: size.height * 0.5,
-                    margin: EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: ThemeColors().selectedIconBox,
-                      // border: Border.all(
-                      //     // color: ThemeColors().selectedIconBox,
-                      //     width: 5.0
-                      // ),
-                      borderRadius: BorderRadius.circular(15),
+              if (isSmallScreen)
+                Column(
+                  children: [
+                    Container(
+                      height: constraints.maxHeight * 0.25, // Adjust height proportionally
+                      width: double.infinity, // Ensure it takes full width
+                      margin: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: ThemeColorsHome.selectedIconBox,
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      child: VoteHistory(),
                     ),
-                    child: VoteHistory(),
-                  ),
-                ),
-                Expanded(
-                  child: Container(
-                    height: size.height * 0.5,
-                    margin: EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: ThemeColors().selectedIconBox,
-                      // border: Border.all(
-                      //     // color: Colors.grey,
-                      //     width: 5.0
-                      // ),
-                      borderRadius: BorderRadius.circular(15),
+                    SizedBox(height: 16),
+                    Container(
+                      height: constraints.maxHeight * 0.25, // Adjust height proportionally
+                      width: double.infinity, // Ensure it takes full width
+                      margin: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: ThemeColorsHome.selectedIconBox,
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      child: ProposalCreated(),
                     ),
-                    child: ProposalCreated(),
-                  ),
+                  ],
+                )
+              else
+                Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        height: constraints.maxHeight * 0.4, // Adjust height proportionally
+                        margin: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: ThemeColorsHome.selectedIconBox,
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        child: VoteHistory(),
+                      ),
+                    ),
+                    SizedBox(width: 16),
+                    Expanded(
+                      child: Container(
+                        height: constraints.maxHeight * 0.4, // Adjust height proportionally
+                        margin: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: ThemeColorsHome.selectedIconBox,
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        child: ProposalCreated(),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            )
-          ],
-        ),
-      ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

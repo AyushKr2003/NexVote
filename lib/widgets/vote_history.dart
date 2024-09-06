@@ -8,57 +8,94 @@ class VoteHistory extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(top: 5, left: 10),
-          child: Text(
-            'Vote History',
-            style: GoogleFonts.openSans(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: ThemeColors().unselectedTextColor,
+    return Container(
+      padding: EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black26,
+            blurRadius: 8,
+            offset: Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(bottom: 16),
+            child: Text(
+              'Vote History',
+              style: GoogleFonts.openSans(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+              ),
             ),
           ),
-        ),
-        SizedBox(height: 20),
-        ...List.generate(voteHistory.length, (index) {
-          VoteModel vote = voteHistory[index];
-          return ExpansionTile(
-            tilePadding: EdgeInsets.all(10),
-            childrenPadding: EdgeInsets.all(10),
-            title: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  vote.name,
-                  style: GoogleFonts.openSans(fontWeight: FontWeight.bold,color: ThemeColors().unselectedTextColor,),
-                ),
-                Icon(
-                  Icons.circle,
-                  color: vote.isActive ? ThemeColors().badgeBackgroundColor : ThemeColors().unselectedIconColor,
-                )
-              ],
-            ),
-            children: [
-              Column(
-                children: [
-                  Text(
-                    vote.date,
-                    style: GoogleFonts.openSans(
-                        fontWeight: FontWeight.w500, color: ThemeColors().unselectedIconColor,),
+          Expanded(
+            child: ListView.builder(
+              itemCount: voteHistory.length,
+              itemBuilder: (context, index) {
+                VoteModel vote = voteHistory[index];
+                return Card(
+                  margin: const EdgeInsets.symmetric(vertical: 8),
+                  elevation: 3,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  SizedBox(height: 5),
-                  Text(
-                    vote.des,
-                    style: GoogleFonts.openSans(color: ThemeColors().unselectedTextColor,),
-                  )
-                ],
-              )
-            ],
-          );
-        })
-      ],
+                  child: ExpansionTile(
+                    tilePadding: EdgeInsets.all(12),
+                    childrenPadding: EdgeInsets.all(12),
+                    title: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          vote.name,
+                          style: GoogleFonts.openSans(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            color: Colors.black87,
+                          ),
+                        ),
+                        Icon(
+                          Icons.circle,
+                          color: vote.isActive ? Colors.green : Colors.red,
+                        ),
+                      ],
+                    ),
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            vote.date,
+                            style: GoogleFonts.openSans(
+                              fontWeight: FontWeight.w500,
+                              fontSize: 14,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                          SizedBox(height: 8),
+                          Text(
+                            vote.des,
+                            style: GoogleFonts.openSans(
+                              fontSize: 14,
+                              color: Colors.black54,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

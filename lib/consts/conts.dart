@@ -4,17 +4,46 @@ import 'package:flutter/material.dart';
 import 'package:nex_vote/model/proposal_model.dart';
 import 'package:nex_vote/model/vote_model.dart';
 
-class ThemeColors {
-  final Color backgroundColor = const Color(0xff2B3138);
-  final Color avatarBackgroundColor = const Color(0xff6A7886);
-  final Color selectedIconBox = const Color(0xff2F4047);
-  final Color selectedIconColor = const Color(0xff4AC6EA);
-  final Color selectedTextColor = const Color(0xffF3F7F7);
-  final Color unselectedIconColor = const Color(0xff6A7886);
-  final Color unselectedTextColor = const Color(0xffC0C7D0);
-  final Color badgeBackgroundColor = const Color(0xffFF6767);
-  final Color badgeTextColor = const Color(0xffF3F7F7);
+// class ThemeColors {
+//   final Color backgroundColor = const Color(0xff2B3138);
+//   final Color avatarBackgroundColor = const Color(0xff6A7886);
+//   final Color selectedIconBox = const Color(0xff2F4047);
+//   final Color selectedIconColor = const Color(0xff4AC6EA);
+//   final Color selectedTextColor = const Color(0xffF3F7F7);
+//   final Color unselectedIconColor = const Color(0xff6A7886);
+//   final Color unselectedTextColor = const Color(0xffC0C7D0);
+//   final Color badgeBackgroundColor = const Color(0xffFF6767);
+//   final Color badgeTextColor = const Color(0xffF3F7F7);
+// }
+import 'package:flutter/material.dart';
+
+class ThemeColorsHome {
+  // Define all colors used in the theme
+  static final backgroundColor = Colors.white;
+  static final cardBackgroundColor = Colors.grey[200]!;
+  static final selectedIconBox = Colors.blueAccent;
+  static final unselectedTextColor = Colors.black87;
+  static final unselectedIconColor = Colors.grey;
+  static final badgeBackgroundColor = Colors.green;
+  static final badgeTextColor = Colors.white;
+  static final iconColor = Colors.black54;
+  static final primaryColor1 = Colors.green[50];
+  static final primaryColor2 = Colors.red[50];
+
 }
+
+class ThemeNavColors {
+  static final backgroundColor = Colors.white;
+  static final cardBackgroundColor = Colors.grey[200];
+  static final selectedIconBox = Colors.blueAccent;
+  static final selectedIconColor = Colors.white;
+  static final selectedTextColor = Colors.white;
+  static final unselectedIconColor = Colors.grey;
+  static final unselectedTextColor = Colors.black87;
+  static final badgeBackgroundColor = Colors.green;
+  static final badgeTextColor = Colors.white;
+}
+
 
 const String walletAdd = "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa";
 

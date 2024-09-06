@@ -1,9 +1,10 @@
 import 'package:collapsible_sidebar/collapsible_sidebar.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:nex_vote/consts/conts.dart';
-import 'package:nex_vote/pages/admin_page.dart';
 import 'package:nex_vote/pages/history_page.dart';
 import 'package:nex_vote/pages/home_page.dart';
+import 'package:nex_vote/pages/proposal_page.dart';
 import 'package:nex_vote/pages/vote_page.dart';
 
 class NavigationScreen extends StatefulWidget {
@@ -37,7 +38,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
       ),
       CollapsibleItem(
         text: 'Admin',
-        icon: Icons.person_3_sharp,
+        icon: Icons.history_edu_sharp,
         onPressed: () => _navigateToPage(1),
       ),
       CollapsibleItem(
@@ -45,18 +46,13 @@ class _NavigationScreenState extends State<NavigationScreen> {
         icon: Icons.how_to_vote_sharp,
         onPressed: () => _navigateToPage(2),
       ),
-      CollapsibleItem(
-        text: 'History',
-        icon: Icons.history_edu_sharp,
-        onPressed: () => _navigateToPage(3),
-      ),
     ];
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: ThemeColors().backgroundColor,
+      backgroundColor: ThemeColorsHome.backgroundColor,
       body: Row(
         children: [
           CollapsibleSidebar(
@@ -66,15 +62,36 @@ class _NavigationScreenState extends State<NavigationScreen> {
             borderRadius: 0,
             screenPadding: 0,
             body: SizedBox.shrink(),
+            backgroundColor: ThemeNavColors.backgroundColor,
+            avatarBackgroundColor: ThemeNavColors.cardBackgroundColor!,
+            selectedIconBox: ThemeNavColors.selectedIconBox,
+            selectedIconColor: ThemeNavColors.selectedIconColor,
+            selectedTextColor: ThemeNavColors.selectedTextColor,
+            unselectedIconColor: ThemeNavColors.unselectedIconColor,
+            unselectedTextColor: ThemeNavColors.unselectedTextColor,
+            badgeBackgroundColor: ThemeNavColors.badgeBackgroundColor,
+            badgeTextColor: ThemeNavColors.badgeTextColor,
+            minWidth: 70,
+            maxWidth: 250,
+            iconSize: 30,
+            textStyle: GoogleFonts.openSans(
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+              color: Colors.black54,
+            ),
+            toggleTitleStyle: GoogleFonts.openSans(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Colors.black54,
+            ),
           ),
           Expanded(
             child: PageView(
               controller: pageController,
               children: [
                 HomePage(),
-                AdminPage(),
+                ProposalPage(),
                 VotePage(),
-                HistoryPage(),
               ],
             ),
           ),

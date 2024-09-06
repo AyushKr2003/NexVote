@@ -8,83 +8,114 @@ class ProposalCreated extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(top: 5, left: 10),
-          child: Text('Proposal History',
+    return Container(
+      padding: EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black26,
+            blurRadius: 8,
+            offset: Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(bottom: 16),
+            child: Text(
+              'Proposal History',
               style: GoogleFonts.openSans(
-                fontSize: 20,
+                fontSize: 22,
                 fontWeight: FontWeight.bold,
-                color: ThemeColors().unselectedTextColor,
-              )),
-        ),
-        SizedBox(height: 20),
-        ...List.generate(proposalHistory.length, (index) {
-          ProposalModel proposal = proposalHistory[index];
-          return ExpansionTile(
-            tilePadding: EdgeInsets.all(10),
-            childrenPadding: EdgeInsets.all(10),
-            title: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  proposal.name,
-                  style: GoogleFonts.openSans(
-                    fontWeight: FontWeight.bold,
-                    color: ThemeColors().unselectedTextColor,
-                  ),
-                ),
-                Icon(
-                  Icons.circle,
-                  color: proposal.isActive
-                      ? ThemeColors().badgeBackgroundColor
-                      : ThemeColors().unselectedIconColor,
-                )
-              ],
+                color: Colors.black87,
+              ),
             ),
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    proposal.date,
-                    style: GoogleFonts.openSans(
-                      fontWeight: FontWeight.w500,
-                      color: ThemeColors().unselectedTextColor,
-                    ),
+          ),
+          Expanded(
+            child: ListView.builder(
+              itemCount: proposalHistory.length,
+              itemBuilder: (context, index) {
+                ProposalModel proposal = proposalHistory[index];
+                return Card(
+                  margin: const EdgeInsets.symmetric(vertical: 8),
+                  elevation: 3,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  SizedBox(height: 5),
-                  Text(
-                    proposal.des,
-                    style: GoogleFonts.openSans(
-                      color: ThemeColors().unselectedTextColor,
+                  child: ExpansionTile(
+                    tilePadding: EdgeInsets.all(12),
+                    childrenPadding: EdgeInsets.all(12),
+                    title: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          proposal.name,
+                          style: GoogleFonts.openSans(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            color: Colors.black87,
+                          ),
+                        ),
+                        Icon(
+                          Icons.circle,
+                          color: proposal.isActive ? Colors.green : Colors.red,
+                        )
+                      ],
                     ),
-                  ),
-                  SizedBox(height: 5),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        'Winner: ${proposal.winner}',
-                        style: GoogleFonts.openSans(
-                          color: ThemeColors().unselectedTextColor,
-                        ),
-                      ),
-                      Text(
-                        "Total vote: ${proposal.totalVote}",
-                        style: GoogleFonts.openSans(
-                          color: ThemeColors().unselectedTextColor,
-                        ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            proposal.date,
+                            style: GoogleFonts.openSans(
+                              fontWeight: FontWeight.w500,
+                              fontSize: 14,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                          SizedBox(height: 8),
+                          Text(
+                            proposal.des,
+                            style: GoogleFonts.openSans(
+                              fontSize: 14,
+                              color: Colors.black54,
+                            ),
+                          ),
+                          SizedBox(height: 8),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Winner: ${proposal.winner}',
+                                style: GoogleFonts.openSans(
+                                  fontSize: 14,
+                                  color: Colors.black54,
+                                ),
+                              ),
+                              Text(
+                                "Total Votes: ${proposal.totalVote}",
+                                style: GoogleFonts.openSans(
+                                  fontSize: 14,
+                                  color: Colors.black54,
+                                ),
+                              ),
+                            ],
+                          )
+                        ],
                       ),
                     ],
-                  )
-                ],
-              )
-            ],
-          );
-        })
-      ],
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

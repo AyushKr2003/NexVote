@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:nex_vote/consts/conts.dart';
-import 'package:nex_vote/model/vote_model.dart';
+import 'package:nex_vote/widgets/proposal_bottom_sheet.dart';
 
-class VotePage extends StatefulWidget {
-  const VotePage({super.key});
+class ProposalPage extends StatefulWidget {
+  const ProposalPage({super.key});
 
   @override
-  State<VotePage> createState() => _VotePageState();
+  State<ProposalPage> createState() => _ProposalPageState();
 }
 
-class _VotePageState extends State<VotePage> {
+class _ProposalPageState extends State<ProposalPage> {
   String searchQuery = '';
 
   @override
@@ -18,7 +18,7 @@ class _VotePageState extends State<VotePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Vote History',
+          'Proposal History',
           style: GoogleFonts.openSans(
             fontSize: 20,
             fontWeight: FontWeight.bold,
@@ -31,7 +31,7 @@ class _VotePageState extends State<VotePage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Search Votes',
+              'Search Proposals',
               style: GoogleFonts.openSans(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -41,7 +41,7 @@ class _VotePageState extends State<VotePage> {
             SizedBox(height: 8),
             TextField(
               decoration: InputDecoration(
-                labelText: 'Search by Name',
+                labelText: 'Search by Title',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8.0),
                 ),
@@ -56,14 +56,14 @@ class _VotePageState extends State<VotePage> {
             SizedBox(height: 16),
             Expanded(
               child: ListView.builder(
-                itemCount: voteHistory
-                    .where((vote) => vote.name.toLowerCase().contains(searchQuery.toLowerCase()))
+                itemCount: proposalHistory
+                    .where((proposal) => proposal.name.toLowerCase().contains(searchQuery.toLowerCase()))
                     .length,
                 itemBuilder: (context, index) {
-                  final filteredVotes = voteHistory
-                      .where((vote) => vote.name.toLowerCase().contains(searchQuery.toLowerCase()))
+                  final filteredProposals = proposalHistory
+                      .where((proposal) => proposal.name.toLowerCase().contains(searchQuery.toLowerCase()))
                       .toList();
-                  final vote = filteredVotes[index];
+                  final proposal = filteredProposals[index];
 
                   return Card(
                     margin: const EdgeInsets.symmetric(vertical: 8.0),
@@ -74,7 +74,7 @@ class _VotePageState extends State<VotePage> {
                     child: ListTile(
                       contentPadding: const EdgeInsets.all(16.0),
                       title: Text(
-                        vote.name,
+                        proposal.name,
                         style: GoogleFonts.openSans(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -84,7 +84,7 @@ class _VotePageState extends State<VotePage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            vote.des,
+                            proposal.des,
                             style: GoogleFonts.openSans(
                               fontSize: 14,
                             ),
@@ -93,16 +93,36 @@ class _VotePageState extends State<VotePage> {
                           ),
                           SizedBox(height: 8),
                           Text(
-                            'Date: ${vote.date}',
+                            'Date: ${proposal.date}',
                             style: GoogleFonts.openSans(
                               fontSize: 12,
                               fontStyle: FontStyle.italic,
                               color: Colors.grey[600],
                             ),
                           ),
+                          SizedBox(height: 8),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Winner: ${proposal.winner}',
+                                style: GoogleFonts.openSans(
+                                  fontSize: 14,
+                                  color: Colors.black54,
+                                ),
+                              ),
+                              Text(
+                                'Total Votes: ${proposal.totalVote}',
+                                style: GoogleFonts.openSans(
+                                  fontSize: 14,
+                                  color: Colors.black54,
+                                ),
+                              ),
+                            ],
+                          ),
                         ],
                       ),
-                      tileColor: vote.isActive ? ThemeColorsHome.primaryColor1 : ThemeColorsHome.primaryColor2,
+                      tileColor: proposal.isActive ? ThemeColorsHome.primaryColor1 : ThemeColorsHome.primaryColor2,
                     ),
                   );
                 },
@@ -111,6 +131,25 @@ class _VotePageState extends State<VotePage> {
           ],
         ),
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _showAddProposalBottomSheet(context),
+        child: Icon(Icons.add),
+        backgroundColor: Colors.teal,
+      ),
+    );
+  }
+
+  void _showAddProposalBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return ProposalBottomSheet(
+          onSubmit: () {
+            // Add logic to handle proposal submission
+            Navigator.pop(context); // Close the bottom sheet
+          },
+        );
+      },
     );
   }
 }
