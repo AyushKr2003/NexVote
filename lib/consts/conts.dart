@@ -19,9 +19,10 @@ import 'package:flutter/material.dart';
 
 class ThemeColorsHome {
   // Define all colors used in the theme
-  static final backgroundColor = Colors.white;
-  static final cardBackgroundColor = Colors.grey[200]!;
-  static final selectedIconBox = Colors.blueAccent;
+  // static final backgroundColor = Colors.blueAccent.withOpacity(0.3);
+  static final backgroundColor = Colors.blue[100]!;
+  static final cardBackgroundColor = Colors.grey[200];
+  static const selectedIconBox = Colors.blueAccent;
   static final unselectedTextColor = Colors.black87;
   static final unselectedIconColor = Colors.grey;
   static final badgeBackgroundColor = Colors.green;

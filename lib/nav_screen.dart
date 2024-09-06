@@ -53,8 +53,21 @@ class _NavigationScreenState extends State<NavigationScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: ThemeColorsHome.backgroundColor,
-      body: Row(
+      body: Stack(
         children: [
+          Expanded(
+            child: Padding(
+              padding: EdgeInsets.only(left: 70),
+              child: PageView(
+                controller: pageController,
+                children: [
+                  HomePage(),
+                  ProposalPage(),
+                  VotePage(),
+                ],
+              ),
+            ),
+          ),
           CollapsibleSidebar(
             items: _buildCollapsibleItems(),
             showTitle: false,
@@ -62,7 +75,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
             borderRadius: 0,
             screenPadding: 0,
             body: SizedBox.shrink(),
-            backgroundColor: ThemeNavColors.backgroundColor,
+            backgroundColor: ThemeColorsHome.backgroundColor,
             avatarBackgroundColor: ThemeNavColors.cardBackgroundColor!,
             selectedIconBox: ThemeNavColors.selectedIconBox,
             selectedIconColor: ThemeNavColors.selectedIconColor,
@@ -85,16 +98,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
               color: Colors.black54,
             ),
           ),
-          Expanded(
-            child: PageView(
-              controller: pageController,
-              children: [
-                HomePage(),
-                ProposalPage(),
-                VotePage(),
-              ],
-            ),
-          ),
+
         ],
       ),
     );
