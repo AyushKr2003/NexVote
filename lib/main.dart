@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nex_vote/nav_screen.dart';
-import 'package:nex_vote/side_bar.dart';
+import 'package:nex_vote/welcome_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -18,7 +18,8 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: NavigationScreen(),
+      home: WelcomePage()
+      // NavigationScreen(),
     );
   }
 }
