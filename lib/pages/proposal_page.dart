@@ -156,8 +156,8 @@ class _ProposalPageState extends State<ProposalPage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showAddProposalBottomSheet(context),
-        child: Icon(Icons.add),
-        backgroundColor: Colors.teal,
+        child: Icon(Icons.add,color: ThemeNavColors.backgroundColor),
+        backgroundColor: ThemeNavColors.selectedIconBox,
       ),
     );
   }
