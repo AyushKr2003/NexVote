@@ -15,7 +15,6 @@ import 'package:nex_vote/model/vote_model.dart';
 //   final Color badgeBackgroundColor = const Color(0xffFF6767);
 //   final Color badgeTextColor = const Color(0xffF3F7F7);
 // }
-import 'package:flutter/material.dart';
 
 class ThemeColorsHome {
   // Define all colors used in the theme

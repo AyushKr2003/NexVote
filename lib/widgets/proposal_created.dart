@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:nex_vote/consts/conts.dart';
-import 'package:nex_vote/model/proposal_model.dart';
+import 'package:nex_vote/model/proposal_model.dart'; // Update this import to where your Election model is defined
 
 class ProposalCreated extends StatelessWidget {
-  const ProposalCreated({super.key});
+  final List<Election> elections; // Accepting the list of Election as a parameter
+
+  const ProposalCreated({super.key, required this.elections});
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +29,7 @@ class ProposalCreated extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(bottom: 16),
             child: Text(
-              'Proposal History',
+              'Election History',
               style: GoogleFonts.openSans(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
@@ -37,9 +39,9 @@ class ProposalCreated extends StatelessWidget {
           ),
           Expanded(
             child: ListView.builder(
-              itemCount: proposalHistory.length,
+              itemCount: elections.length,
               itemBuilder: (context, index) {
-                ProposalModel proposal = proposalHistory[index];
+                Election election = elections[index];
                 return Card(
                   margin: const EdgeInsets.symmetric(vertical: 8),
                   elevation: 3,
@@ -53,7 +55,7 @@ class ProposalCreated extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          proposal.name,
+                          election.title,
                           style: GoogleFonts.openSans(
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
@@ -62,8 +64,8 @@ class ProposalCreated extends StatelessWidget {
                         ),
                         Icon(
                           Icons.circle,
-                          color: proposal.isActive ? Colors.green : Colors.red,
-                        )
+                          color: Colors.blue, // You can change this to reflect election status
+                        ),
                       ],
                     ),
                     children: [
@@ -71,41 +73,44 @@ class ProposalCreated extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            proposal.date,
-                            style: GoogleFonts.openSans(
-                              fontWeight: FontWeight.w500,
-                              fontSize: 14,
-                              color: Colors.grey[600],
-                            ),
-                          ),
-                          SizedBox(height: 8),
-                          Text(
-                            proposal.des,
+                            'Description: ${election.description}',
                             style: GoogleFonts.openSans(
                               fontSize: 14,
                               color: Colors.black54,
                             ),
                           ),
                           SizedBox(height: 8),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                'Winner: ${proposal.winner}',
-                                style: GoogleFonts.openSans(
-                                  fontSize: 14,
-                                  color: Colors.black54,
-                                ),
-                              ),
-                              Text(
-                                "Total Votes: ${proposal.totalVote}",
-                                style: GoogleFonts.openSans(
-                                  fontSize: 14,
-                                  color: Colors.black54,
-                                ),
-                              ),
-                            ],
-                          )
+                          Text(
+                            'Start Date: ${election.startDate.toLocal()}',
+                            style: GoogleFonts.openSans(
+                              fontSize: 14,
+                              color: Colors.black54,
+                            ),
+                          ),
+                          SizedBox(height: 8),
+                          Text(
+                            'End Date: ${election.endDate.toLocal()}',
+                            style: GoogleFonts.openSans(
+                              fontSize: 14,
+                              color: Colors.black54,
+                            ),
+                          ),
+                          SizedBox(height: 8),
+                          Text(
+                            'Creator: ${election.creator}',
+                            style: GoogleFonts.openSans(
+                              fontSize: 14,
+                              color: Colors.black54,
+                            ),
+                          ),
+                          SizedBox(height: 8),
+                          Text(
+                            'Total Candidates: ${election.candidates.length}',
+                            style: GoogleFonts.openSans(
+                              fontSize: 14,
+                              color: Colors.black54,
+                            ),
+                          ),
                         ],
                       ),
                     ],

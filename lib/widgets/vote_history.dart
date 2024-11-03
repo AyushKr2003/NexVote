@@ -1,10 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:nex_vote/consts/conts.dart';
-import 'package:nex_vote/model/vote_model.dart';
+import 'package:nex_vote/model/vote_model.dart'; // Assuming you have your ElectionVote model here
 
-class VoteHistory extends StatelessWidget {
-  const VoteHistory({super.key});
+class VoteHistory extends StatefulWidget {
+  final List<ElectionVote> voteHistory; // Accepting the list as a parameter
+
+  const VoteHistory({super.key, required this.voteHistory});
+
+  @override
+  State<VoteHistory> createState() => _VoteHistoryState();
+}
+
+class _VoteHistoryState extends State<VoteHistory> {
 
   @override
   Widget build(BuildContext context) {
@@ -37,9 +45,9 @@ class VoteHistory extends StatelessWidget {
           ),
           Expanded(
             child: ListView.builder(
-              itemCount: voteHistory.length,
+              itemCount: widget.voteHistory.length,
               itemBuilder: (context, index) {
-                VoteModel vote = voteHistory[index];
+                ElectionVote vote = widget.voteHistory[index];
                 return Card(
                   margin: const EdgeInsets.symmetric(vertical: 8),
                   elevation: 3,
@@ -53,16 +61,17 @@ class VoteHistory extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          vote.name,
+                          vote.title,
                           style: GoogleFonts.openSans(
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
                             color: Colors.black87,
                           ),
                         ),
+                        // Use an icon or indicator for visual feedback if needed
                         Icon(
                           Icons.circle,
-                          color: vote.isActive ? Colors.green : Colors.red,
+                          color: Colors.blue, // You can set this based on your logic
                         ),
                       ],
                     ),
@@ -71,7 +80,7 @@ class VoteHistory extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            vote.date,
+                            'Date: ${vote.timestamp.toLocal()}',
                             style: GoogleFonts.openSans(
                               fontWeight: FontWeight.w500,
                               fontSize: 14,
@@ -80,10 +89,18 @@ class VoteHistory extends StatelessWidget {
                           ),
                           SizedBox(height: 8),
                           Text(
-                            vote.des,
+                            vote.description,
                             style: GoogleFonts.openSans(
                               fontSize: 14,
                               color: Colors.black54,
+                            ),
+                          ),
+                          SizedBox(height: 8),
+                          Text(
+                            'Transaction Hash: ${vote.transactionHash}',
+                            style: GoogleFonts.openSans(
+                              fontSize: 12,
+                              color: Colors.grey[500],
                             ),
                           ),
                         ],

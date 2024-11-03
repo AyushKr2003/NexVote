@@ -2,11 +2,18 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:nex_vote/consts/conts.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
+import 'package:nex_vote/metamask_provider.dart';
+import 'package:nex_vote/model/proposal_model.dart';
+import 'package:provider/provider.dart';
 
 class ProposalBottomSheet extends StatefulWidget {
   final VoidCallback onSubmit;
+  final VoidCallback onUpdateElections;
 
-  ProposalBottomSheet({required this.onSubmit});
+  ProposalBottomSheet({required this.onSubmit, required this.onUpdateElections});
 
   @override
   State<ProposalBottomSheet> createState() => _ProposalBottomSheetState();
@@ -57,6 +64,7 @@ class _ProposalBottomSheetState extends State<ProposalBottomSheet> {
             ),
           ),
           const SizedBox(height: 16),
+          // Date and Time Pickers
           Row(
             children: [
               Expanded(
@@ -67,8 +75,7 @@ class _ProposalBottomSheetState extends State<ProposalBottomSheet> {
                       controller: TextEditingController(
                         text: _startDate == null
                             ? ''
-                            : '${_startDate!.toLocal()}'
-                                .split(' ')[0], // Formatting date
+                            : '${_startDate!.toLocal()}'.split(' ')[0],
                       ),
                       decoration: InputDecoration(
                         labelText: 'Start Date',
@@ -89,7 +96,7 @@ class _ProposalBottomSheetState extends State<ProposalBottomSheet> {
                       controller: TextEditingController(
                         text: _startTime == null
                             ? ''
-                            : _startTime!.format(context), // Formatting time
+                            : _startTime!.format(context),
                       ),
                       decoration: InputDecoration(
                         labelText: 'Start Time',
@@ -114,8 +121,7 @@ class _ProposalBottomSheetState extends State<ProposalBottomSheet> {
                       controller: TextEditingController(
                         text: _endDate == null
                             ? ''
-                            : '${_endDate!.toLocal()}'
-                                .split(' ')[0], // Formatting date
+                            : '${_endDate!.toLocal()}'.split(' ')[0],
                       ),
                       decoration: InputDecoration(
                         labelText: 'End Date',
@@ -134,9 +140,7 @@ class _ProposalBottomSheetState extends State<ProposalBottomSheet> {
                   child: AbsorbPointer(
                     child: TextField(
                       controller: TextEditingController(
-                        text: _endTime == null
-                            ? ''
-                            : _endTime!.format(context),
+                        text: _endTime == null ? '' : _endTime!.format(context),
                       ),
                       decoration: InputDecoration(
                         labelText: 'End Time',
@@ -153,15 +157,8 @@ class _ProposalBottomSheetState extends State<ProposalBottomSheet> {
           const SizedBox(height: 16),
           Center(
             child: ElevatedButton(
-              onPressed: () {
-                if (kDebugMode) {
-                  print('Title: ${title.text}');
-                  print('Description: ${des.text}');
-                  print('Start Date: $_startDate');
-                  print('Start Time: $_startTime');
-                  print('End Date: $_endDate');
-                  print('End Time: $_endTime');
-                }
+              onPressed: () async {
+                await _submitProposal();
                 Navigator.of(context).pop();
               },
               style: ElevatedButton.styleFrom(
@@ -180,11 +177,58 @@ class _ProposalBottomSheetState extends State<ProposalBottomSheet> {
     );
   }
 
-  Future<void> _selectDate(BuildContext context,
-      {required bool isStartDate}) async {
+  Future<void> _submitProposal() async {
+
+    String creator = Provider.of<MetaMaskProvider>(context, listen: false).authResponse!.user.id;
+    String creatorWallet = Provider.of<MetaMaskProvider>(context, listen: false).currentAddress;
+    const int electionIndex = 5; // Constant election index
+
+    final election = Election(
+      title: title.text,
+      description: des.text,
+      startDate: _startDate ?? DateTime.now(),
+      endDate: _endDate ?? DateTime.now(),
+      creator: creator,
+      creatorWallet: creatorWallet,
+      electionIndex: electionIndex,
+      candidates: [], // Assuming no candidates for now
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    );
+
+    await createElection(election);
+    widget.onUpdateElections();
+  }
+
+  Future<void> createElection(Election election) async {
+    final url = Uri.parse('http://localhost:3000/api/v1/election'); // Adjust URL as needed
+    String token = Provider.of<MetaMaskProvider>(context, listen: false).authResponse!.token;
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode(election.toJson()),
+      );
+
+      if (response.statusCode == 201) {
+        print('Election created successfully: ${response.body}');
+      } else {
+        print('Failed to create election: ${response.statusCode}, ${response.body}');
+        throw Exception('Failed to create election: ${response.reasonPhrase}');
+      }
+    } catch (e) {
+      print('Error creating election: $e');
+      throw e;
+    }
+  }
+
+  Future<void> _selectDate(BuildContext context, {required bool isStartDate}) async {
     final DateTime now = DateTime.now();
-    final DateTime initialDate =
-        isStartDate ? _startDate ?? now : _endDate ?? now;
+    final DateTime initialDate = isStartDate ? _startDate ?? now : _endDate ?? now;
     final DateTime firstDate = DateTime(now.year - 100);
     final DateTime lastDate = DateTime(now.year + 100);
 
@@ -208,11 +252,8 @@ class _ProposalBottomSheetState extends State<ProposalBottomSheet> {
     }
   }
 
-  Future<void> _selectTime(BuildContext context,
-      {required bool isStartTime}) async {
-    final TimeOfDay initialTime = isStartTime
-        ? _startTime ?? TimeOfDay.now()
-        : _endTime ?? TimeOfDay.now();
+  Future<void> _selectTime(BuildContext context, {required bool isStartTime}) async {
+    final TimeOfDay initialTime = isStartTime ? _startTime ?? TimeOfDay.now() : _endTime ?? TimeOfDay.now();
 
     final TimeOfDay? pickedTime = await showTimePicker(
       context: context,

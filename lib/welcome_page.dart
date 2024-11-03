@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:nex_vote/connect_button.dart';
 import 'package:nex_vote/nav_screen.dart';
+import 'package:nex_vote/pages/auth_page.dart';
 
 class WelcomePage extends StatelessWidget {
   const WelcomePage({super.key});
@@ -57,10 +59,19 @@ class WelcomePage extends StatelessWidget {
                   ElevatedButton(
                     onPressed: () {
 
+                      // Navigator.pushReplacement(
+                      //   context,
+                      //   MaterialPageRoute(builder: (BuildContext context) => ButtonCon()),
+                      // );
                       Navigator.pushReplacement(
                         context,
-                        MaterialPageRoute(builder: (BuildContext context) => NavigationScreen()),
+                        MaterialPageRoute(builder: (BuildContext context) => AuthPage()),
                       );
+
+                      // Navigator.pushReplacement(
+                      //   context,
+                      //   MaterialPageRoute(builder: (BuildContext context) => NavigationScreen()),
+                      // );
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blueAccent,
