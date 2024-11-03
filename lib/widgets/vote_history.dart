@@ -71,7 +71,7 @@ class _VoteHistoryState extends State<VoteHistory> {
                         // Use an icon or indicator for visual feedback if needed
                         Icon(
                           Icons.circle,
-                          color: Colors.blue, // You can set this based on your logic
+                          color: Colors.blue,
                         ),
                       ],
                     ),
@@ -80,7 +80,7 @@ class _VoteHistoryState extends State<VoteHistory> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Date: ${vote.timestamp.toLocal()}',
+                            'Date: ${formatDateTime(vote.timestamp)}',
                             style: GoogleFonts.openSans(
                               fontWeight: FontWeight.w500,
                               fontSize: 14,
@@ -115,4 +115,15 @@ class _VoteHistoryState extends State<VoteHistory> {
       ),
     );
   }
+}
+
+String formatDateTime(DateTime dateTime) {
+  // Format the date to "YYYY-MM-DD"
+  String formattedDate = '${dateTime.year}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')}';
+
+  // Format the time to "HH:MM"
+  String formattedTime = '${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
+
+  // Combine date and time
+  return '$formattedDate Time: $formattedTime';
 }

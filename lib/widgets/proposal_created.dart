@@ -1,13 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:nex_vote/consts/conts.dart';
-import 'package:nex_vote/model/proposal_model.dart'; // Update this import to where your Election model is defined
+import 'package:nex_vote/metamask_provider.dart';
+import 'package:nex_vote/model/proposal_model.dart';
+import 'package:provider/provider.dart'; // Update this import to where your Election model is defined
 
-class ProposalCreated extends StatelessWidget {
+class ProposalCreated extends StatefulWidget {
   final List<Election> elections; // Accepting the list of Election as a parameter
 
   const ProposalCreated({super.key, required this.elections});
 
+  @override
+  State<ProposalCreated> createState() => _ProposalCreatedState();
+}
+
+class _ProposalCreatedState extends State<ProposalCreated> {
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -39,9 +46,10 @@ class ProposalCreated extends StatelessWidget {
           ),
           Expanded(
             child: ListView.builder(
-              itemCount: elections.length,
+              itemCount: widget.elections.length,
               itemBuilder: (context, index) {
-                Election election = elections[index];
+                Election election = widget.elections[index];
+                Candidate? winner = findWinner(election.candidates);
                 return Card(
                   margin: const EdgeInsets.symmetric(vertical: 8),
                   elevation: 3,
@@ -64,7 +72,9 @@ class ProposalCreated extends StatelessWidget {
                         ),
                         Icon(
                           Icons.circle,
-                          color: Colors.blue, // You can change this to reflect election status
+                          color: election.isVotingOpen
+                              ? Colors.greenAccent
+                              : Colors.redAccent,
                         ),
                       ],
                     ),
@@ -81,7 +91,7 @@ class ProposalCreated extends StatelessWidget {
                           ),
                           SizedBox(height: 8),
                           Text(
-                            'Start Date: ${election.startDate.toLocal()}',
+                            'Start Date: ${formatDateTime(election.startDate)}',
                             style: GoogleFonts.openSans(
                               fontSize: 14,
                               color: Colors.black54,
@@ -89,7 +99,7 @@ class ProposalCreated extends StatelessWidget {
                           ),
                           SizedBox(height: 8),
                           Text(
-                            'End Date: ${election.endDate.toLocal()}',
+                            'End Date: ${formatDateTime(election.endDate)}',
                             style: GoogleFonts.openSans(
                               fontSize: 14,
                               color: Colors.black54,
@@ -98,6 +108,14 @@ class ProposalCreated extends StatelessWidget {
                           SizedBox(height: 8),
                           Text(
                             'Creator: ${election.creator}',
+                            style: GoogleFonts.openSans(
+                              fontSize: 14,
+                              color: Colors.black54,
+                            ),
+                          ),
+                          SizedBox(height: 8),
+                          Text(
+                            'Winner: ${winner?.name ?? 'N/A'}',
                             style: GoogleFonts.openSans(
                               fontSize: 14,
                               color: Colors.black54,
@@ -123,4 +141,33 @@ class ProposalCreated extends StatelessWidget {
       ),
     );
   }
+}
+
+
+Candidate? findWinner(List<Candidate> candidates) {
+  if (candidates.isEmpty) return null; // Return null if no candidates
+
+  // Start with the first candidate as the initial winner
+  Candidate winner = candidates[0];
+
+  // Iterate through candidates to find the one with the maximum vote count
+  for (var candidate in candidates) {
+    if (candidate.voteCount != null && candidate.voteCount! > winner.voteCount!) {
+      winner = candidate;
+    }
+  }
+
+  return winner;
+}
+
+
+String formatDateTime(DateTime dateTime) {
+  // Format the date to "YYYY-MM-DD"
+  String formattedDate = '${dateTime.year}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')}';
+
+  // Format the time to "HH:MM"
+  String formattedTime = '${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
+
+  // Combine date and time
+  return '$formattedDate Time: $formattedTime';
 }

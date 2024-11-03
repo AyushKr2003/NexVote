@@ -37,7 +37,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
         isSelected: true,
       ),
       CollapsibleItem(
-        text: 'Admin',
+        text: 'Elections',
         icon: Icons.history_edu_sharp,
         onPressed: () => _navigateToPage(1),
       ),

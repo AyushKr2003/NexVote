@@ -20,12 +20,17 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   List<ElectionVote> vote_history= [];
   List<Election> proposal =[];
+  List<Election> updatedProposal = [];
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    fetchData();
+    fetchDataAndUpdate();
+  }
+
+  Future<void> fetchDataAndUpdate() async {
+    await fetchData();
+    await updateAllElections(proposal, context);
   }
 
   Future<void> fetchData() async {
@@ -49,6 +54,21 @@ class _HomePageState extends State<HomePage> {
       print('Failed to fetch elections: $e');
     }
   }
+
+  Future<void> updateAllElections(List<Election> elections, BuildContext context) async {
+    List<Election> updatedList = [];
+
+    for (var election in elections) {
+      // Update each election with votes
+      Election update = await updateElectionWithVotes(election, context);
+      updatedList.add(update);
+    }
+    setState(() {
+      updatedProposal = updatedList;
+      // isLoading = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
@@ -129,4 +149,36 @@ class _HomePageState extends State<HomePage> {
       },
     );
   }
+}
+
+Future<Election> updateElectionWithVotes(Election election,  BuildContext context) async{
+  List<ContractCandidate> contractCandidates = await Provider.of<MetaMaskProvider>(context, listen: false).getResults(election.electionIndex);
+  // Create a map for easy lookup of contract candidates by name
+  Map<String, int> contractCandidateVotes = {
+    for (var contractCandidate in contractCandidates)
+      contractCandidate.name: contractCandidate.voteCount
+  };
+
+  // Update voteCount for each candidate based on the results
+  List<Candidate> updatedCandidates = election.candidates.map((candidate) {
+    // Set voteCount based on the contractCandidateVotes map; default to 0 if not found
+    candidate.voteCount = contractCandidateVotes[candidate.name] ?? 0;
+    return candidate;
+  }).toList();
+
+  // Return a new Election object with updated candidates and other properties
+  return Election(
+    id: election.id,
+    title: election.title,
+    description: election.description,
+    startDate: election.startDate,
+    endDate: election.endDate,
+    creator: election.creator,
+    creatorWallet: election.creatorWallet,
+    electionIndex: election.electionIndex,
+    candidates: updatedCandidates,
+    createdAt: election.createdAt,
+    updatedAt: DateTime.now(),
+    isVotingOpen: election.isVotingOpen,
+  );
 }

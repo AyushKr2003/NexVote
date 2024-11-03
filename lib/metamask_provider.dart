@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_web3/ethereum.dart';
 import 'package:flutter_web3/flutter_web3.dart' as flutter_web3;
 import 'package:nex_vote/model/auth_model.dart';
+import 'package:nex_vote/model/proposal_model.dart';
 import 'package:web3dart/web3dart.dart' as web3dart;
 import 'package:http/http.dart';
 
@@ -126,7 +127,7 @@ class MetaMaskProvider extends ChangeNotifier {
   }
 
 
-  Future<String> callFunction(String funcname, List<dynamic> args, web3dart.Web3Client ethClient, String privateKey) async {
+  Future<String> callFunction(String funcname, List<dynamic> args) async {
     web3dart.EthPrivateKey credentials = web3dart.EthPrivateKey.fromHex(privateKey);
 
     final ethFunction = contract.function(funcname);
@@ -142,10 +143,145 @@ class MetaMaskProvider extends ChangeNotifier {
     return result;
   }
 
-  Future<String> createElection(String name) async {
-    var response =
-    await callFunction('createElection', [name], ethClient, privateKey);
-    print('Election started successfully');
-    return response;
+  Future<int> createElection(String name) async {
+    // Send the transaction to create the election
+    var transactionHash = await callFunction('createElection', [name]);
+    print('Election started successfully. Transaction Hash: $transactionHash');
+
+    // To get the election ID returned from the contract, we need to modify callFunction
+    // It should return the ID, but currently, it returns a transaction hash.
+    // You can listen for the transaction receipt and extract the ID from that.
+
+    // Note: Since we can't capture the return value directly from sendTransaction,
+    // we need to check for the receipt to ensure the transaction is confirmed,
+    // and then call a function to get the updated election count.
+
+    // Assuming the last election ID is the one just created
+    int electionId = await getElectionCount() - 1; // Subtract 1 to get the ID of the new election
+    return electionId;
+  }
+
+
+  //
+  Future<ContractElectionDetails> addCandidate(int electionId, String name, String symbol) async {
+    var response = await callFunction('addCandidate', [BigInt.from(electionId), name, symbol]);
+    print('Candidate added successfully $response');
+
+    var electionDetails = await getElectionDetails(electionId);
+    print("\n\n$electionDetails\n\n");
+    return electionDetails;
+  }
+
+
+  Future<bool> castVote(int electionId, int candidateId) async {
+    var response = await callFunction('castVote', [BigInt.from(electionId), BigInt.from(candidateId)]);
+    print('Vote cast successfully');
+
+    bool result = await hasVotedInElection(electionId);
+    return result;
+  }
+
+  Future<bool> closeVoting(int electionId) async {
+    var response = await callFunction('closeVoting', [BigInt.from(electionId)]);
+    print('Voting closed successfully $response');
+
+    ContractElectionDetails electionDetails = await getElectionDetails(electionId);
+    return electionDetails.isVotingOpen ;
+    // return response;
+  }
+
+  Future<List<ContractCandidate>> getResults(int electionId) async {
+    if (!isConnected) {
+      throw Exception('Not connected to MetaMask');
+    }
+
+    try {
+      print("start");
+      final result = await ethClient.call(
+        contract: contract,
+        function: contract.function('getResults'),
+        params: [BigInt.from(electionId)],
+      );
+      print("end");
+
+      print('Results fetched: $result');
+
+      // The result structure is [[[name, symbol, voteCount], ...]]
+      List<List<dynamic>> candidatesData = List<List<dynamic>>.from(result[0]);
+
+      // Convert the nested lists to Candidate models
+      List<ContractCandidate> candidates = candidatesData.map((candidateData) {
+        return ContractCandidate.fromList(candidateData);
+      }).toList();
+
+      return candidates;
+    } catch (e) {
+      print('Error fetching results: $e');
+      throw e;
+    }
+  }
+
+
+  Future<ContractElectionDetails> getElectionDetails(int electionId) async {
+    if (!isConnected) {
+      throw Exception('Not connected to MetaMask');
+    }
+
+    try {
+      print("started");
+      final result = await ethClient.call(
+        contract: contract,
+        function: contract.function('getElectionDetails'),
+        params: [BigInt.from(electionId)],
+      );
+      print("end");
+      print('Election details fetched: $result');
+
+      return ContractElectionDetails.fromList(result);
+    } catch (e) {
+      print('Error fetching election details: $e');
+      throw e;
+    }
+  }
+
+
+  Future<bool> hasVotedInElection(int electionId) async {
+    if (!isConnected) {
+      throw Exception('Not connected to MetaMask');
+    }
+
+    try {
+      final result = await ethClient.call(
+        contract: contract,
+        function: contract.function('hasVotedInElection'),
+        params: [BigInt.from(electionId),  web3dart.EthereumAddress.fromHex(currentAddress)],
+      );
+
+      return result[0] as bool;
+    } catch (e) {
+      print('Error checking if has voted: $e');
+      throw e;
+    }
+  }
+
+  Future<List<dynamic>> getElections() async {
+    if (!isConnected) {
+      throw Exception('Not connected to MetaMask');
+    }
+
+    try {
+      int electionCount = await getElectionCount();
+      List<dynamic> elections = [];
+
+      for (int i = 0; i < electionCount; i++) {
+        var details = await getElectionDetails(i);
+        elections.add(details);
+      }
+
+      return elections;
+    } catch (e) {
+      print('Error fetching elections: $e');
+      throw e;
+    }
   }
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:nex_vote/consts/conts.dart';
+import 'package:nex_vote/model/proposal_model.dart';
 import 'package:provider/provider.dart'; // Import Provider package
 import 'package:nex_vote/metamask_provider.dart'; // Import your MetaMaskProvider
 
@@ -45,9 +46,9 @@ class _UserInfoState extends State<UserInfo> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      textField('UserName', provider.authResponse!.user.username),
+                      textField('UserName', provider.authResponse!.user.name),
                       SizedBox(height: 8),
-                      textField('Email', 'email@example.com'),
+                      textField('Email', provider.authResponse!.user.email),
                       SizedBox(height: 8),
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
@@ -94,55 +95,69 @@ class _UserInfoState extends State<UserInfo> {
                               )),
                         ],
                       ),
-                      ElevatedButton(
-                        onPressed: () async {
-                          try {
-                            int count = await provider.getElectionCount();
-                            setState(() {
-                              candidateCount = count; // Update candidate count
-                              errorMessage = ''; // Clear any previous errors
-                            });
-                          } catch (e) {
-                            setState(() {
-                              errorMessage = e.toString(); // Set error message
-                              print(errorMessage);
-                            });
-                          }
-                        },
-                        child: Text('Get Candidate Count'),
-                      ),
-                      // Display the candidate count or error message below the button
-                      if (errorMessage.isNotEmpty)
-                        Text(
-                          'Error: $errorMessage',
-                          style: TextStyle(color: Colors.red),
-                        ),
-                      if (candidateCount > 0)
-                        Text(
-                          'Candidate Count: $candidateCount',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                        ),
-                      TextField(
-                        controller: name,
-                        decoration: InputDecoration(
-                          labelText: 'Name',
-                        ),
-                      ),
-                      ElevatedButton(
-                        onPressed: () async {
-                          try {
-                            // await provider.createElection(name.text); // Use name.text to get the input value
-                            String res = await provider.createElection(name.text);
-                            print(res);
-                          } catch (e) {
-                            setState(() {
-                              errorMessage = e.toString(); // Set error message
-                              print(errorMessage);
-                            });
-                          }
-                        },
-                        child: Text('Create'),
-                      ),
+                      // ElevatedButton(
+                      //   onPressed: () async {
+                      //     try {
+                      //       int count = await provider.getElectionCount();
+                      //       setState(() {
+                      //         candidateCount = count; // Update candidate count
+                      //         errorMessage = ''; // Clear any previous errors
+                      //       });
+                      //     } catch (e) {
+                      //       setState(() {
+                      //         errorMessage = e.toString(); // Set error message
+                      //         print(errorMessage);
+                      //       });
+                      //     }
+                      //   },
+                      //   child: Text('Get Candidate Count'),
+                      // ),
+                      // // Display the candidate count or error message below the button
+                      // if (errorMessage.isNotEmpty)
+                      //   Text(
+                      //     'Error: $errorMessage',
+                      //     style: TextStyle(color: Colors.red),
+                      //   ),
+                      // if (candidateCount > 0)
+                      //   Text(
+                      //     'Candidate Count: $candidateCount',
+                      //     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      //   ),
+                      // TextField(
+                      //   controller: name,
+                      //   decoration: InputDecoration(
+                      //     labelText: 'Name',
+                      //   ),
+                      // ),
+                      // ElevatedButton(
+                      //   onPressed: () async {
+                      //     try {
+                      //       // int res = await provider.createElection(name.text);
+                      //       // print(res);
+                      //
+                      //       // ContractElectionDetails res = await provider.addCandidate(3, name.text, "ZZ");
+                      //       // print(res);
+                      //
+                      //       // List<ContractCandidate> candidates = await provider.getResults(3);
+                      //       // candidates.forEach((candidate) {
+                      //       //   print('Candidate Name: ${candidate.name}, Votes: ${candidate.voteCount}');
+                      //       // });
+                      //
+                      //       // bool vote = await provider.castVote(1, 0);
+                      //       // bool vote = await provider.hasVotedInElection(1);
+                      //       // print(vote);
+                      //       // bool close = await provider.closeVoting(1);
+                      //       // print("voting $close");
+                      //
+                      //     } catch (e) {
+                      //       setState(() {
+                      //         errorMessage = e.toString(); // Set error message
+                      //         print(errorMessage);
+                      //       });
+                      //     }
+                      //   },
+                      //   child: Text('Create'),
+                      // ),
                     ],
                   ),
                 ),

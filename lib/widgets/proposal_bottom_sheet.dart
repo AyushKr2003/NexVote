@@ -181,7 +181,7 @@ class _ProposalBottomSheetState extends State<ProposalBottomSheet> {
 
     String creator = Provider.of<MetaMaskProvider>(context, listen: false).authResponse!.user.id;
     String creatorWallet = Provider.of<MetaMaskProvider>(context, listen: false).currentAddress;
-    const int electionIndex = 5; // Constant election index
+    int electionIndex = await Provider.of<MetaMaskProvider>(context, listen: false).createElection(title.text);
 
     final election = Election(
       title: title.text,
@@ -194,6 +194,7 @@ class _ProposalBottomSheetState extends State<ProposalBottomSheet> {
       candidates: [], // Assuming no candidates for now
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
+        isVotingOpen: true
     );
 
     await createElection(election);

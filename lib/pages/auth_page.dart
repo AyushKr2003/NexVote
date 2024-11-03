@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:nex_vote/connect_button.dart';
+import 'package:nex_vote/consts/conts.dart';
 import 'package:nex_vote/metamask_provider.dart';
 import 'package:nex_vote/model/auth_model.dart';
 import 'package:nex_vote/provider/api.dart';
@@ -166,7 +168,7 @@ class _AuthPageState extends State<AuthPage> {
                     ElevatedButton(
                       onPressed: handleSubmit,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue,
+                        backgroundColor: ThemeNavColors.selectedIconBox,
                         padding: EdgeInsets.symmetric(horizontal: 40, vertical: 12),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -174,7 +176,9 @@ class _AuthPageState extends State<AuthPage> {
                       ),
                       child: Text(
                         isLogin ? "Login" : "Sign Up",
-                        style: TextStyle(fontSize: 16),
+                        style: GoogleFonts.openSans(
+                          color: ThemeNavColors.backgroundColor,
+                        ),
                       ),
                     ),
                     SizedBox(height: 10),
@@ -185,6 +189,7 @@ class _AuthPageState extends State<AuthPage> {
                         style: TextStyle(color: Colors.blue),
                       ),
                     ),
+
                   ],
                 ),
               ),

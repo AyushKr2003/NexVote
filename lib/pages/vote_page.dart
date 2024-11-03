@@ -34,17 +34,20 @@ class _VotePageState extends State<VotePage> {
           .token;
       // Fetch elections and user's voting history
       elections = await ApiService().fetchElections(token);
-      List<ElectionVote> vote_history = await ApiService().fetchUserVotes(token);
+      List<ElectionVote> vote_history =
+          await ApiService().fetchUserVotes(token);
 
       // Extract the election IDs from the vote_history
-      List<String> votedElectionIds = vote_history.map((vote) => vote.electionId).toList();
+      List<String> votedElectionIds =
+          vote_history.map((vote) => vote.electionId).toList();
 
       // Filter out elections that the user has already voted in
       setState(() {
-        elections = elections.where((election) => !votedElectionIds.contains(election.id)).toList();
+        elections = elections.where((election) =>
+        !votedElectionIds.contains(election.id) &&
+            election.isVotingOpen // Check if voting is open
+        ).toList();
       });
-
-
     } catch (e) {
       print('Failed to fetch elections: $e');
     } finally {
@@ -75,28 +78,24 @@ class _VotePageState extends State<VotePage> {
               child: ListBody(
                 children: [
                   // Display election details
-                  Text(
-                    'Start Date: ${election.startDate}',
-                    style: GoogleFonts.openSans(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
+                  Row(
+
+                    children: [
+                      titleValueRow('Start Date' ,'${formatDate(election.startDate)}    ',16),
+                      titleValueRow('Time' ,formatTime(election.startDate),16),
+                    ],
                   ),
                   SizedBox(height: 8),
-                  Text(
-                    'End Date: ${election.endDate}',
-                    style: GoogleFonts.openSans(
-                      fontSize: 16,
-                    ),
+                  Row(
+                    children: [
+                      titleValueRow('End Date', formatDate(election.endDate),16),
+                      titleValueRow('    Time', formatTime(election.endDate),16),
+                    ],
                   ),
                   SizedBox(height: 8),
-                  Text(
-                    'Description: ${election.description}',
-                    style: GoogleFonts.openSans(
-                      fontSize: 16,
-                    ),
-                  ),
-                  SizedBox(height: 16),
+                  titleValueRow('Description', election.description,16),
+                  SizedBox(height: 8),
+                  Divider(),
                   // Display candidates and vote buttons
                   if (election.candidates.isNotEmpty) ...[
                     Text(
@@ -124,9 +123,17 @@ class _VotePageState extends State<VotePage> {
                               ),
                               ElevatedButton(
                                 onPressed: () {
-                                  _castVote(candidate.id, election.id);
+                                  _castVote(candidate.id, election, index);
                                 },
-                                child: Text('Vote'),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: ThemeNavColors.selectedIconBox,
+                                ),
+                                child: Text(
+                                  'Vote',
+                                  style: GoogleFonts.openSans(
+                                    color: ThemeNavColors.backgroundColor,
+                                  ),
+                                ),
                               ),
                             ],
                           ),
@@ -156,17 +163,25 @@ class _VotePageState extends State<VotePage> {
     );
   }
 
-  void _castVote(String? candidateId, String? electionId) async{
+  void _castVote(String? candidateId, Election election, int index) async {
     // Implement your vote casting logic here
-    if (candidateId != null && electionId != null) {
+    if (candidateId != null && election.id != null) {
       // Example API call to cast the vote
 
-      String token = Provider.of<MetaMaskProvider>(context, listen: false).authResponse!.token;
-      String transactionHash = '0x354yhgf3456uikjhgfr4567yt';
-      await ApiService().castVote(electionId, candidateId, transactionHash, token);
-      print('Casting vote for candidate: $candidateId in election: $electionId');
-      Fluttertoast.showToast(msg: 'Vote Successfully', timeInSecForIosWeb: 3);
-      await fetchElections();
+      String token = Provider.of<MetaMaskProvider>(context, listen: false)
+          .authResponse!
+          .token;
+      String transactionHash = '0x354yhgf3';
+      bool vote = await Provider.of<MetaMaskProvider>(context, listen: false).castVote(election.electionIndex, index);
+      if (vote) {
+        await ApiService()
+            .castVote(election.id!, candidateId, transactionHash, token);
+        print(
+            'Casting vote for candidate: $candidateId in election: ${election
+                .id}');
+        Fluttertoast.showToast(msg: 'Vote Successfully', timeInSecForIosWeb: 3);
+        await fetchElections();
+      }
       Navigator.pop(context);
       // Perform the API call, and handle the response as needed
     }
@@ -235,84 +250,110 @@ class _VotePageState extends State<VotePage> {
               SizedBox(height: 16),
               Expanded(
                 child: isLoading
-                    ? Center(child: CircularProgressIndicator()) // Show loading indicator
+                    ? Center(
+                        child:
+                            CircularProgressIndicator()) // Show loading indicator
                     : GridView.builder(
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: crossAxisCount,
-                    crossAxisSpacing: 10.0,
-                    mainAxisSpacing: 10.0,
-                    childAspectRatio: childAspectRatio,
-                  ),
-                  itemCount: elections
-                      .where((election) => election.title
-                      .toLowerCase()
-                      .contains(searchQuery.toLowerCase()))
-                      .length,
-                  itemBuilder: (context, index) {
-                    final filteredElections = elections
-                        .where((election) => election.title
-                        .toLowerCase()
-                        .contains(searchQuery.toLowerCase()))
-                        .toList();
-                    final election = filteredElections[index];
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: crossAxisCount,
+                          crossAxisSpacing: 10.0,
+                          mainAxisSpacing: 10.0,
+                          childAspectRatio: childAspectRatio,
+                        ),
+                        itemCount: elections
+                            .where((election) => election.title
+                                .toLowerCase()
+                                .contains(searchQuery.toLowerCase()))
+                            .length,
+                        itemBuilder: (context, index) {
+                          final filteredElections = elections
+                              .where((election) => election.title
+                                  .toLowerCase()
+                                  .contains(searchQuery.toLowerCase()))
+                              .toList();
+                          final election = filteredElections[index];
 
-                    return GestureDetector(
-                      onTap: () {
-                        _showElectionDetailsDialog(context, election);
-                      },
-                      child: Card(
-                        margin: const EdgeInsets.all(0),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12.0),
-                        ),
-                        elevation: 3,
-                        color: ThemeColorsHome.primaryColor1,
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                election.title,
-                                style: GoogleFonts.openSans(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
+                          return GestureDetector(
+                            onTap: () {
+                              _showElectionDetailsDialog(context, election);
+                            },
+                            child: Card(
+                              margin: const EdgeInsets.all(0),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12.0),
+                              ),
+                              elevation: 3,
+                              color: ThemeColorsHome.primaryColor1,
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      election.title,
+                                      style: GoogleFonts.openSans(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    SizedBox(height: 8),
+                                    Text(
+                                      election.description,
+                                      style: GoogleFonts.openSans(
+                                        fontSize: 14,
+                                      ),
+                                      maxLines: 3,
+                                      overflow: TextOverflow.ellipsis,
+                                      softWrap: true,
+                                    ),
+                                    SizedBox(height: 8),
+                                    Row(
+                                      children: [
+                                        Text(
+                                          'Start Date: ${formatDate(election.startDate)}  ',
+                                          style: GoogleFonts.openSans(
+                                            fontSize: 12,
+                                            fontStyle: FontStyle.italic,
+                                            color: Colors.grey[600],
+                                          ),
+                                        ),
+                                        Text(
+                                          'Time: ${formatTime(election.startDate)}',
+                                          style: GoogleFonts.openSans(
+                                            fontSize: 12,
+                                            fontStyle: FontStyle.italic,
+                                            color: Colors.grey[600],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    Row(
+                                      children: [
+                                        Text(
+                                          'End Date: ${formatDate(election.endDate)} ',
+                                          style: GoogleFonts.openSans(
+                                            fontSize: 12,
+                                            fontStyle: FontStyle.italic,
+                                            color: Colors.grey[600],
+                                          ),
+                                        ),
+                                        Text(
+                                          'Time: ${formatTime(election.endDate)}',
+                                          style: GoogleFonts.openSans(
+                                            fontSize: 12,
+                                            fontStyle: FontStyle.italic,
+                                            color: Colors.grey[600],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
                                 ),
                               ),
-                              SizedBox(height: 8),
-                              Text(
-                                election.description,
-                                style: GoogleFonts.openSans(
-                                  fontSize: 14,
-                                ),
-                                maxLines: 3,
-                                overflow: TextOverflow.ellipsis,
-                                softWrap: true,
-                              ),
-                              SizedBox(height: 8),
-                              Text(
-                                'Start Date: ${election.startDate}',
-                                style: GoogleFonts.openSans(
-                                  fontSize: 12,
-                                  fontStyle: FontStyle.italic,
-                                  color: Colors.grey[600],
-                                ),
-                              ),
-                              Text(
-                                'End Date: ${election.endDate}',
-                                style: GoogleFonts.openSans(
-                                  fontSize: 12,
-                                  fontStyle: FontStyle.italic,
-                                  color: Colors.grey[600],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
+                            ),
+                          );
+                        },
                       ),
-                    );
-                  },
-                ),
               ),
             ],
           ),
@@ -320,4 +361,48 @@ class _VotePageState extends State<VotePage> {
       ),
     );
   }
+}
+Widget titleValueRow(String title, String value, double size) {
+  return Row(
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    children: [
+      RichText(
+        text: TextSpan(
+          children: [
+            TextSpan(
+              text: '$title: ',
+              style: GoogleFonts.openSans(
+                fontSize: size,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+              ),
+            ),
+            TextSpan(
+              text: value,
+              style: GoogleFonts.openSans(
+                fontSize: size,
+                fontWeight: FontWeight.normal,
+                color: Colors.black,
+              ),
+            ),
+          ],
+        ),
+      ),
+    ],
+  );
+}
+
+String formatDate(DateTime dateTime) {
+  // Format the date to "YYYY-MM-DD"
+  String formattedDate = '${dateTime.year}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')}';
+
+  // Combine date and time
+  return '$formattedDate';
+}
+String formatTime(DateTime dateTime) {
+  // Format the time to "HH:MM"
+  String formattedTime = '${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
+
+  // Combine date and time
+  return '$formattedTime';
 }

@@ -187,4 +187,32 @@ class ApiService {
       return []; // Return an empty list on error
     }
   }
+
+  Future<void> closeElection(String electionId, String token) async {
+    final url = Uri.parse('$baseUrl$electionUrl/close-election/$electionId');
+
+    try {
+      final response = await http.put(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        print('Election closed successfully: ${data['message']}');
+      } else if (response.statusCode == 404) {
+        print('Error: Election not found');
+      } else if (response.statusCode == 400) {
+        print('Error: ${jsonDecode(response.body)['message']}');
+      } else {
+        print('Error closing election: ${response.statusCode}, ${response.reasonPhrase}');
+      }
+    } catch (e) {
+      print('Error making request to close election: $e');
+    }
+  }
+
 }
